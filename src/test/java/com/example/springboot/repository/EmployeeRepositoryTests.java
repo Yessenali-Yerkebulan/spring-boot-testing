@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
+import java.util.List;
+
 @DataJpaTest
 public class EmployeeRepositoryTests {
     @Autowired
@@ -30,5 +32,33 @@ public class EmployeeRepositoryTests {
         //then - verify the output
         assertThat(savedEmployee).isNotNull();
         assertThat(savedEmployee.getId()).isGreaterThan(0);
+    }
+
+    // JUnit test for get all employees operation
+    @Test
+    @DisplayName("JUnit test for get all employees operation")
+    public void givenEmployeesList_whenFindAll_thenEmployeesList(){
+        // given - precondition or setup
+        Employee employee1 = Employee.builder()
+                .firstName("Yerkebulan")
+                .lastName("Yessenali")
+                .email("yerkebulan@gmail.com")
+                .build();
+
+        Employee employee2 = Employee.builder()
+                .firstName("John")
+                .lastName("Doe")
+                .email("john@gmail.com")
+                .build();
+
+        employeeRepository.save(employee1);
+        employeeRepository.save(employee2);
+
+        //when - action or the behavior that we are going test
+        List<Employee> employeeList = employeeRepository.findAll();
+
+        //then - verify the output
+        assertThat(employeeList).isNotNull();
+        assertThat(employeeList.size()).isEqualTo(2);
     }
 }
