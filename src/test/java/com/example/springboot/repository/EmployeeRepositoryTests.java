@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.util.List;
+import java.util.Optional;
 
 @DataJpaTest
 public class EmployeeRepositoryTests {
@@ -116,5 +117,43 @@ public class EmployeeRepositoryTests {
         //then - verify the output
         assertThat(updatedEmployee.getEmail()).isEqualTo("yerkebulanyessenali@gmail.com");
         assertThat(updatedEmployee.getFirstName()).isEqualTo("YerkebulanY");
+    }
+
+    //JUnit test for delete employee operation
+    @Test
+    @DisplayName("JUnit test for delete employee operation")
+    public void givenEmployeeObject_whenDelete_thenRemoveEmployee(){
+        // given - precondition or setup
+        Employee employee = Employee.builder()
+                .firstName("Yerkebulan")
+                .lastName("Yessenali")
+                .email("yerkebulan@gmail.com")
+                .build();
+        employeeRepository.save(employee);
+
+        //when - action or the behavior that we are going test
+        employeeRepository.delete(employee);
+        Optional<Employee> employeeOptional = employeeRepository.findById(employee.getId());
+        //then - verify the output
+        assertThat(employeeOptional).isEmpty();
+    }
+
+    //JUnit test for delete employee by id operation
+    @Test
+    @DisplayName("JUnit test for delete employee by id operation")
+    public void givenEmployeeObject_whenDeleteById_thenRemoveEmployee(){
+        // given - precondition or setup
+        Employee employee = Employee.builder()
+                .firstName("Yerkebulan")
+                .lastName("Yessenali")
+                .email("yerkebulan@gmail.com")
+                .build();
+        employeeRepository.save(employee);
+
+        //when - action or the behavior that we are going test
+        employeeRepository.deleteById(employee.getId());
+        Optional<Employee> employeeOptional = employeeRepository.findById(employee.getId());
+        //then - verify the output
+        assertThat(employeeOptional).isEmpty();
     }
 }
