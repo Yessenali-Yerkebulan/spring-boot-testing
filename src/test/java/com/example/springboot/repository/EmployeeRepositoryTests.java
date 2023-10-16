@@ -1,6 +1,8 @@
 package com.example.springboot.repository;
 
 import com.example.springboot.model.Employee;
+
+import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -176,4 +178,26 @@ public class EmployeeRepositoryTests {
         //then - verify the output
         assertThat(savedEmployee).isNotNull();
     }
+
+    //JUnit test for custom JPQL query with named params
+    @Test
+    @DisplayName("JUnit test for custom JPQL query with named params")
+    public void givenFirstNameAndLastName_whenFindByJPQLNamedParams_thenReturnEmployeeObject(){
+        // given - precondition or setup
+        Employee employee = Employee.builder()
+                .firstName("Yerkebulan")
+                .lastName("Yessenali")
+                .email("yerkebulan@gmail.com")
+                .build();
+        employeeRepository.save(employee);
+        String firstName = "Yerkebulan";
+        String lastName = "Yessenali";
+
+        //when - action or the behavior that we are going test
+        Employee savedEmployee = employeeRepository.findByJPQLNamedParams(firstName, lastName);
+
+        //then - verify the output
+        assertThat(savedEmployee).isNotNull();
+    }
+
 }
