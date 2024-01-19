@@ -4,6 +4,7 @@ import com.example.springboot.exception.ResourceNotFoundException;
 import com.example.springboot.model.Employee;
 import com.example.springboot.repository.EmployeeRepository;
 import com.example.springboot.service.impl.EmployeeServiceImpl;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -130,5 +131,21 @@ public class EmployeeServiceTests {
         Employee savedEmployee = employeeService.getEmployeeById(employee.getId()).get();
         //then
         Assertions.assertThat(savedEmployee).isNotNull();
+    }
+
+    //JUnit test for updateEmployee method
+    @Test
+    public void givenEmployeeObject_whenUpdateEmployee_thenReturnUpdatedEmployee(){
+        // given
+        given(employeeRepository.save(employee)).willReturn(employee);
+        employee.setEmail("updated_yerkebulan_email@gmail.com");
+        employee.setFirstName("Updated_Yerkebulan_Name");
+
+        //when
+        Employee updatedEmployee = employeeService.updateEmployee(employee);
+
+        //then
+        Assertions.assertThat(updatedEmployee.getEmail()).isEqualTo("updated_yerkebulan_email@gmail.com");
+        Assertions.assertThat(updatedEmployee.getFirstName()).isEqualTo("Updated_Yerkebulan_Name");
     }
 }
