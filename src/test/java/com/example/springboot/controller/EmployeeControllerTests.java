@@ -5,9 +5,11 @@ import com.example.springboot.service.EmployeeService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Test;
@@ -74,5 +76,27 @@ public class EmployeeControllerTests {
     			.andDo(MockMvcResultHandlers.print())
     			.andExpect(MockMvcResultMatchers.jsonPath("$.size()", 
     					CoreMatchers.is(listOfEmployees.size())));
+    }
+    
+    // positive scenario - valid employee id
+    // JUnit test for GET employee by id REST API
+    @Test
+    public void givenEmployeeId_whenGetEmployeeById_thenReturnEmployeeObject() throws Exception {
+    	// given
+    	long employeeId = 1L;
+        Employee employee = Employee.builder()
+                .firstName("Yerkebulan")
+                .lastName("Yessenali")
+                .email("yerkebulan@gmail.com")
+                .build();
+        BDDMockito.given(employeeService.getEmployeeById(employeeId)).willReturn(Optional.of(employee));
+    	// when
+        ResultActions response = mockMvc.perform(get("/api/employees/{id}", employeeId));
+    	// then
+        response.andExpect(MockMvcResultMatchers.status().isOk())
+        		.andDo(MockMvcResultHandlers.print())
+        		.andExpect(jsonPath("$.firstName", CoreMatchers.is(employee.getFirstName())))
+        		.andExpect(jsonPath("$.lastName", CoreMatchers.is(employee.getLastName())))
+        		.andExpect(jsonPath("$.email", CoreMatchers.is(employee.getEmail())));
     }
 }
