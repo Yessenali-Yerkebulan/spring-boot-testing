@@ -35,4 +35,21 @@ public class EmployeeController {
     			.map(ResponseEntity::ok)
     			.orElseGet(() -> ResponseEntity.notFound().build());
     }
+    
+    @PutMapping("{id}")
+    public ResponseEntity<Employee> updateEmployee(@PathVariable("id") long employeeId,
+    											   @RequestBody Employee employee){
+    	return employeeService.getEmployeeById(employeeId)
+    			.map(savedEmployee -> {
+    				
+    				savedEmployee.setFirstName(employee.getFirstName());
+    				savedEmployee.setLastName(employee.getLastName());
+    				savedEmployee.setEmail(employee.getEmail());
+    				
+    				Employee updatedEmployee = employeeService.updateEmployee(savedEmployee);
+    				return new ResponseEntity<>(updatedEmployee, HttpStatus.OK);
+    				
+    			})
+    			.orElseGet(() -> ResponseEntity.notFound().build());
+    }
 }
