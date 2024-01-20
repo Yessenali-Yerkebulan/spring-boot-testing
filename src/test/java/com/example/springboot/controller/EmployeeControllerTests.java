@@ -2,6 +2,7 @@ package com.example.springboot.controller;
 
 import com.example.springboot.model.Employee;
 import com.example.springboot.service.EmployeeService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -14,7 +15,9 @@ import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
-import org.mockito.BDDMockito;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -42,7 +45,7 @@ public class EmployeeControllerTests {
                 .lastName("Yessenali")
                 .email("yerkebulan@gmail.com")
                 .build();
-        BDDMockito.given(employeeService.saveEmployee(ArgumentMatchers.any(Employee.class)))
+        given(employeeService.saveEmployee(any(Employee.class)))
                 .willAnswer((invocation) -> invocation.getArgument(0));
 
         // when
@@ -65,7 +68,7 @@ public class EmployeeControllerTests {
     	List<Employee> listOfEmployees = new ArrayList<>();
     	listOfEmployees.add(Employee.builder().firstName("Yerkebulan").lastName("Yessenali").email("yerkebulan@gmail.com").build());
     	listOfEmployees.add(Employee.builder().firstName("Tony").lastName("Stark").email("tony@gmail.com").build());
-    	BDDMockito.given(employeeService.getAllEmployees()).willReturn(listOfEmployees);
+    	given(employeeService.getAllEmployees()).willReturn(listOfEmployees);
     	// when
     	ResultActions response = mockMvc.perform(get("/api/employees"));
     	// then
@@ -86,7 +89,7 @@ public class EmployeeControllerTests {
                 .lastName("Yessenali")
                 .email("yerkebulan@gmail.com")
                 .build();
-        BDDMockito.given(employeeService.getEmployeeById(employeeId)).willReturn(Optional.of(employee));
+        given(employeeService.getEmployeeById(employeeId)).willReturn(Optional.of(employee));
     	// when
         ResultActions response = mockMvc.perform(get("/api/employees/{id}", employeeId));
     	// then
@@ -108,11 +111,75 @@ public class EmployeeControllerTests {
                 .lastName("Yessenali")
                 .email("yerkebulan@gmail.com")
                 .build();
-        BDDMockito.given(employeeService.getEmployeeById(employeeId)).willReturn(Optional.empty());
+        given(employeeService.getEmployeeById(employeeId)).willReturn(Optional.empty());
     	// when
         ResultActions response = mockMvc.perform(get("/api/employees/{id}", employeeId));
     	// then
         response.andExpect(status().isNotFound())
         		.andDo(print());
     }
+    
+    // JUnit test for update employee REST API - positive scenario
+    @Test
+    public void givenUpdatedEmployee_whenUpdateEmployee_thenReturnUpdateEmployeeObject() throws JsonProcessingException, Exception {
+    	// given
+    	long employeeId = 1L;
+    	Employee savedEmployee = Employee.builder()
+    			.firstName("Yerkebulan")
+    			.lastName("Yessenali")
+    			.email("yerkebulan@gmail.com")
+    			.build();
+    	
+    	Employee updatedEmployee = Employee.builder()
+    			.firstName("Tony")
+    			.lastName("Stark")
+    			.email("tony@gmail.com")
+    			.build();
+    	
+    	given(employeeService.getEmployeeById(employeeId)).willReturn(Optional.of(savedEmployee));
+    	given(employeeService.updateEmployee(any(Employee.class)))
+    			.willAnswer((invocation) -> invocation.getArgument(0));
+    	
+    	//when
+    	ResultActions response = mockMvc.perform(put("/api/employees/{id}", employeeId)
+    									.contentType(MediaType.APPLICATION_JSON)
+    									.content(objectMapper.writeValueAsString(updatedEmployee)));
+    	//then
+    	response.andExpect(status().isOk())
+    			.andDo(print())
+    			.andExpect(jsonPath("$.firstName", is(updatedEmployee.getFirstName())))
+    			.andExpect(jsonPath("$.lastName", is(updatedEmployee.getLastName())))
+    			.andExpect(jsonPath("$.email", is(updatedEmployee.getEmail())));
+    }
+    
+    // JUnit test for update employee REST API - positive scenario
+    @Test
+    public void givenUpdatedEmployee_whenUpdateEmployee_thenReturn404() throws JsonProcessingException, Exception {
+    	// given
+    	long employeeId = 1L;
+    	Employee savedEmployee = Employee.builder()
+    			.firstName("Yerkebulan")
+    			.lastName("Yessenali")
+    			.email("yerkebulan@gmail.com")
+    			.build();
+    	
+    	Employee updatedEmployee = Employee.builder()
+    			.firstName("Tony")
+    			.lastName("Stark")
+    			.email("tony@gmail.com")
+    			.build();
+    	
+    	given(employeeService.getEmployeeById(employeeId)).willReturn(Optional.empty());
+    	given(employeeService.updateEmployee(any(Employee.class)))
+    			.willAnswer((invocation) -> invocation.getArgument(0));
+    	
+    	//when
+    	ResultActions response = mockMvc.perform(put("/api/employees/{id}", employeeId)
+    									.contentType(MediaType.APPLICATION_JSON)
+    									.content(objectMapper.writeValueAsString(updatedEmployee)));
+    	//then
+    	response.andExpect(status().isNotFound())
+    			.andDo(print());
+    }
+   
 }
