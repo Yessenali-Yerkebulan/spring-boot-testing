@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -152,7 +152,7 @@ public class EmployeeControllerTests {
     			.andExpect(jsonPath("$.email", is(updatedEmployee.getEmail())));
     }
     
-    // JUnit test for update employee REST API - positive scenario
+    // JUnit test for update employee REST API - negative scenario
     @Test
     public void givenUpdatedEmployee_whenUpdateEmployee_thenReturn404() throws JsonProcessingException, Exception {
     	// given
@@ -181,5 +181,19 @@ public class EmployeeControllerTests {
     	response.andExpect(status().isNotFound())
     			.andDo(print());
     }
-   
+    
+    // JUnit test for delete employee REST API
+   @Test
+   public void givenEmployeeId_whenDeleteEmployee_thenReturn200() throws Exception{
+	   //given
+	   long employeeId = 1L;
+	   willDoNothing().given(employeeService).deleteEmployee(employeeId);
+	   
+	   //when
+	   ResultActions response = mockMvc.perform(delete("/api/employees/{id}", employeeId));
+	   
+	   //then
+	   response.andExpect(status().isOk())
+	   			.andDo(print());
+   }
 }
